@@ -1,0 +1,62 @@
+- hosts: all
+  tasks:
+  - name: Install various required packages
+    yum: name={{ item }} state=installed
+    with_items:
+      - wget
+      - policycoreutils-python
+      - epel-release
+
+  - name: Install various required packages
+    yum: name={{ item }} state=installed
+    with_items:
+      - http://mirror.centos.org/centos/7/extras/x86_64/Packages/docker-1.13.1-63.git94f4240.el7.centos.x86_64.rpm
+
+  - lineinfile:
+      path: /etc/sysconfig/docker
+      line: 'INSECURE_REGISTRY="--insecure-registry 172.30.0.0/16"'
+  
+  - name: Enable docker
+    service: 
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Download openshift CLI
+    get_url:
+      url: https://github.com/openshift/origin/releases/download/v3.9.0/openshift-origin-client-tools-v3.9.0-191fece-linux-64bit.tar.gz
+      dest: /tmp/origin.tgz
+
+  - name: Extract openshift CLI
+    unarchive:
+      remote_src: True
+      src: /tmp/origin.tgz
+      dest: /tmp/
+
+  - name: Copy files oc to /usr/local/bin
+    copy:
+      remote_src: True
+      src: /tmp/openshift-origin-client-tools-v3.9.0-191fece-linux-64bit/oc
+      dest: /usr/local/bin/
+
+  - name: Changing perm of "/usr/local/bin/oc", adding "+x"
+    file: 
+      dest: /usr/local/bin/oc
+      mode: a+x
+
+  - name: Creates directory
+    file: 
+      path: /var/lib/openshift
+      state: directory
+
+  - name: Install OpenShift oc cluster up as Systemd Service
+    copy: 
+      src: openshift.service 
+      dest: /etc/systemd/system/openshift.service
+      owner: root
+      group: root
+      mode: 0755
+
+
+
+

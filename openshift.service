@@ -1,0 +1,23 @@
+[Unit]
+Description=OpenShift oc cluster up Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+ExecStart=/usr/local/bin/oc cluster up --host-config-dir=/var/lib/openshift/config --host-data-dir=/var/lib/openshift/data --host-pv-dir=/var/lib/openshift/pv --host-volumes-dir=/var/lib/openshift/volumes --use-existing-config=true --public-hostname=console.apps.example.com --routing-suffix=apps.example.com --loglevel=1 --metrics=true
+ExecStop=/usr/local/bin/oc cluster down
+WorkingDirectory=/var/lib/openshift
+Restart=no
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=occlusterup
+User=root
+Type=oneshot
+RemainAfterExit=yes
+TimeoutSec=300
+
+[Install]
+WantedBy=multi-user.target
+
+
+
