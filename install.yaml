@@ -57,6 +57,11 @@
       group: root
       mode: 0755
 
-
+  - name: Enable and start OpenShift service
+    service:
+      name: openshift
+      state: started
+      enabled: yes
+  
 
 

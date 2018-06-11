@@ -9,10 +9,11 @@ sleep 10
 IP=$(scw inspect $SERVER_ID  2> /dev/null | jq -r .[0].public_ip.address )
 while [ -z $IP ]; do
     IP=$(scw inspect $SERVER_ID 2> /dev/null | jq -r .[0].public_ip.address )
-    echo "Server not start, retring ..."
+    echo "Server not started, retrying ..."
     sleep 1
 done
 
-ansible-playbook -i inventory.ini install.yaml -e server_ip=$IP -e domain=example.com
+sed s/@@IP@@/$IP/g inventory.ini > /tmp/inventory
+ansible-playbook -i /tmp/inventory.ini install.yaml -e domain=example.com
 ```
 
