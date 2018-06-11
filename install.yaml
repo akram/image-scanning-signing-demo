@@ -50,8 +50,8 @@
       state: directory
 
   - name: Install OpenShift oc cluster up as Systemd Service
-    copy: 
-      src: openshift.service 
+    template: 
+      src: openshift.service.j2
       dest: /etc/systemd/system/openshift.service
       owner: root
       group: root
