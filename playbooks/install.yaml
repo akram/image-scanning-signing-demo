@@ -1,3 +1,4 @@
+---
 - hosts: all
   tasks:
   - name: Install various required packages
@@ -6,6 +7,9 @@
       - wget
       - policycoreutils-python
       - epel-release
+      - vim
+      - python-passlib
+      - httpd-tools
 
   - name: Install various required packages
     yum: name={{ item }} state=installed
@@ -51,17 +55,48 @@
 
   - name: Install OpenShift oc cluster up as Systemd Service
     template: 
-      src: openshift.service.j2
+      src: ../templates/openshift.service.j2
       dest: /etc/systemd/system/openshift.service
       owner: root
       group: root
       mode: 0755
+    notify: Restart OpenShift
+
 
   - name: Enable and start OpenShift service
     service:
       name: openshift
       state: started
       enabled: yes
-  
+
+  - name: Create htpasswd
+    htpasswd:
+      path: /var/lib/openshift/config/master/htpasswd
+      name: admin
+      password: 'admin'
+      owner: root
+      mode: 0640
+
+#  - yedit:  
+#      src: /var/lib/openshift/config/master/master-config.yaml
+#      key: oauth#identityProviders
+#      value:
+#        identityProviders:
+#          test
+#        - challenge: true
+#          login: true
+#          mappingMethod: claim
+#          name: anypassword
+#          provider:
+#            apiVersion: v1
+#            kind: HTPasswdIdentityProvider
+#            file: /var/lib/openshift/config/master/htpasswd
+
+
+  handlers:
+  - name: Restart OpenShift
+    service:
+      name: openshift
+      state: restarted
 
 
