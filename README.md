@@ -3,6 +3,8 @@
 The demo runs on Scaleway and uses scw command line
 
 ```
+ansible-galaxy install kwoodson.yedit
+
 SERVER_ID=$(scw  create  --commercial-type=C2L --ip-address=dynamic  centos)
 scw start $SERVER_ID
 sleep 10
@@ -13,7 +15,7 @@ while [ -z $IP ]; do
     sleep 1
 done
 
-sed s/@@IP@@/$IP/g inventory.ini > /tmp/inventory
-ansible-playbook -i /tmp/inventory.ini install.yaml -e domain=example.com
+sed s/@@IP@@/$IP/g inventory.ini > /tmp/inventory.ini
+ansible-playbook -i /tmp/inventory.ini playbooks/install.yaml -e public_hostname=console.redhat.ovh -e routing_suffix=apps.redhat.ovh
 ```
 
